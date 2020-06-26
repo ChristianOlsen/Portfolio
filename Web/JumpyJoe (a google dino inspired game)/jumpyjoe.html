@@ -1,0 +1,490 @@
+﻿<!DOCTYPE html>
+<html>
+<html lang="no">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Jumpy Joe</title>
+    <link rel="icon" href=img/joe_hode.png type="image/gif" size="15x15">
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="stylesheet.css">
+</head>
+
+<body>
+    <div id="spillramme" class="pixelated">
+        <h1 id="tittel" onClick="window.location.reload()">JUMPY JOE</h1>
+        <div id="gradient" class="baneBevegelse"></div>
+        <div id="spill">
+            <div id="fjellBak" class="baneBevegelse"></div>
+            <div id="fjellForan" class="baneBevegelse"></div>
+            <div id="skyer" class="baneBevegelse"></div>
+            <div id="scoreBoard">
+                <p id="hdnPoeng">0 </p>
+                <p id="hdnRekord">HI 0</p>
+            </div>
+            <div id="start">
+                <p style="font-size:40px; margin-top:14px; margin-bottom: 10px">Play!</p>
+                <p style="font-size:15px">Press any key to play!<br><br>
+                Jump: <img src=img/btn_uparrow.png width=27px height=27px> <img src=img/btn_w.png width=27px height=27> <img src=img/btn_spacebar.png width=135px height=27><br><br>
+                Duck: <img src=img/btn_downarrow.png width=27px height=27px> <img src=img/btn_s.png width=27px height=27px>
+                </p>
+            </div>
+            <div id="gameover">
+                <p style="font-size:40px; margin-top:14px; margin-bottom: 10px">GAME OVER</p>
+                <p style="font-size:13px">Press any key to try again!</p>
+                <p id="gameoverPoeng" style="font-size:15px">
+                    You got 0 points<br><br>
+                    Highscore: 0 points
+                </p>
+            </div>
+            <div id="tunellBak"></div>
+            <div id="tunellForan"></div>
+            <div id="gressBane" class="bane"></div>
+            <div id="orkenBane" class="bane"></div>
+            <div id="joe"></div>
+            <div id="hdnHinder1" class="hinder"></div>
+            <div id="hdnHinder2" class="hinder"></div>
+            <div id="hdnHinder3" class="hinder"></div>
+            <div id="hdnHinder4" class="hinder"></div>
+            </div>
+                <div id="lydknapp" class="pixelated"></div>
+                <button id="resetScore">R-HI</button>
+                <div class="copyright">Game by Krefsa Productions©
+                    <span class="contact">KrefsaProductions@GameMaker.com</span>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+    /*
+    Spill ideer:
+    Vektorgrafikk
+    Grå lav opacity som dekker skjermen ved gameover og før start
+    any button or click the game to start
+    Control menu i start/gameover-skjerm
+    score og highscore, ny farge ved highscore
+    reset highscore knapp
+    etter 1000 poeng endre/invert(?) farge
+    pil ned for dukk
+    random hinder på bakken og svevende
+    animasjonsgrafikk?
+    løper fortere etter antall poeng
+    blink og lyd når farten økes
+    lydknapp
+    fikse byttet mellom baner
+    */
+    var body            = document.getElementsByTagName("BODY")[0];
+    var spill           = document.getElementById("spill");
+    var fjellBak        = document.getElementById("fjellBak");
+    var fjellForan      = document.getElementById("fjellForan");
+    var skyer           = document.getElementById("skyer");
+    var start           = document.getElementById("start");
+    var gameover        = document.getElementById("gameover");
+    var joe             = document.getElementById("joe");
+    var gressBane       = document.getElementById("gressBane");
+    var orkenBane       = document.getElementById("orkenBane");
+    var hdnPoeng        = document.getElementById("hdnPoeng");
+    var hdnRekord       = document.getElementById("hdnRekord");
+    var gameoverPoeng   = document.getElementById("gameoverPoeng");
+    var lydknapp        = document.getElementById("lydknapp");
+
+    //Lyd:
+    sndSoundtrack   = new Audio("snd/soundtrack.mp3");
+    sndSoundtrack.volume = 1;
+    sndSoundtrack.loop = true;
+    sndHopp         = new Audio("snd/hopp.wav");
+    sndHopp.volume = 1;
+    sndHighscore    = new Audio("snd/highscore.wav");
+    sndHighscore.volume = 1;
+    sndGameover     = new Audio("snd/gameover.wav");
+    sndGameover.volume = 1;
+    var volum       = ["0", "0.2", "0.5", "1"];
+    var volumBilde  = ["img/lyd0.png","img/lyd1.png","img/lyd2.png","img/lyd3.png"];
+    var volumValg   = 3;
+
+    //Hindere:
+    var hdnHinder   = [];
+    hdnHinder.push(document.getElementById("hdnHinder1"));
+    hdnHinder.push(document.getElementById("hdnHinder2"));
+    hdnHinder.push(document.getElementById("hdnHinder3"));
+    hdnHinder.push(document.getElementById("hdnHinder4"));
+
+    class Hinder {
+        constructor(ypos, bredde, hoyde) {
+            this.aktiv = false;
+            this.xpos = 0;
+            this.ypos = ypos;
+            this.bredde = bredde;
+            this.hoyde = hoyde;
+        }
+    }
+
+    var hinder = [];
+    hinder.push(new Hinder(40,45,15));
+    hinder.push(new Hinder(15,50,35));
+    hinder.push(new Hinder(40,20,55));
+    hinder.push(new Hinder(80,55,30));
+
+    //HinderAnimasjoner
+    var animasjonHinder2 = [
+        {backgroundPosition: "0 0"},
+        {backgroundPosition: "-120px 0"}
+    ];
+    var innstillingerHinder2 = {
+        duration: 750,
+        iterations: Infinity,
+        easing: "steps(2)"
+    }
+    var hinder2animert = hdnHinder[1].animate(animasjonHinder2, innstillingerHinder2);
+
+    var animasjonHinder4 = [
+        {backgroundPosition: "0 0"},
+        {backgroundPosition: "-110px 0"}
+    ];
+    var innstillingerHinder4 = {
+        duration: 750,
+        iterations: Infinity,
+        easing: "steps(2)"
+    }
+    var hinder4animert = hdnHinder[3].animate(animasjonHinder4, innstillingerHinder4);
+
+    var gameOn          = false;
+
+    //Joe's verdier:
+    var joeBredde       = 40;
+    var joeHoyde        = 50;
+    var joexPos         = 55;
+    var joeyPos         = 40;
+    var fallFart        = 9;
+    var gravitasjon     = 0.4;
+    var joeHopper       = false;
+    var joeDukker       = false;
+    var joeAvslutter    = false;
+    var animasjonJoe    = [
+        {backgroundPosition: "0 0"},
+        {backgroundPosition: "-180px 0"}
+    ];
+    var innstillingerJoe = {
+        duration: 750,
+        iterations: Infinity,
+        easing: "steps(4)"
+    }
+    var player = joe.animate(animasjonJoe, innstillingerJoe);
+
+    //Bane og bakgunn:
+    var baneBredde      = 700;
+    var bakkePos        = 40;
+    var banePos         = 0;
+    var baneFart        = 4;
+
+    var fjellBakPos     = 0;
+    var fjellBakFart    = baneFart/7;
+
+    var fjellForanPos   = 0;
+    var fjellForanFart  = baneFart/5;
+
+    var skyerPos        = 0;
+    var skyerFart       = baneFart / 3;
+
+    //Poeng:
+    var poeng           = -1;
+    if(localStorage.rekord === undefined) {
+        localStorage.rekord = 0;
+    }
+    hdnRekord.innerHTML = "HI " + localStorage.rekord;
+
+    var hue             = 0;
+    var sat             = 100;
+    var deg             = 0;
+    var opacity1        = 100;
+    var opacity2        = 0;
+    var fartBlink       = ["rgba(255, 255, 0, 0.1)","initial","rgba(0, 0, 255, 0.1)","initial"];
+    var fartBlinkFarge  = 0;
+    var gressOp         = 1;
+    var orkenOp         = 0;
+    var fjellHue        = 0;
+
+    document.onkeypress = function (evt) {
+        if(!gameOn){
+            gameOn = true;
+            start.style.display = "none";
+            gameover.style.display = "none";
+            poeng = 0;
+            baneFart = 4;
+            joexPos = 60;
+            joeAvslutter = false;
+
+            sndSoundtrack.playbackRate = 1;
+            sndHopp.playbackRate = 1;
+            innstillingerJoe.duration = 750;
+            joe.style.left = joexPos + "px"
+            gressBane.style.opacity = "initial";
+            orkenBane.style.opacity = "initial";
+            fjellBak.style.filter = "initial";
+            fjellForan.style.filter = "initial";
+            spill.style.filter = "initial";
+            body.style.filter = "initial";  
+            body.style.backgroundColor = "#eef0f6";
+            sat = 100;
+            hue = 0;
+            gressOp = 1;
+            orkenOp = 0;
+            fjellHue = 0;
+            
+
+            sndSoundtrack.play();
+            tilfeldigeHindere();
+            gameLoop();
+        }
+    }
+
+    //Hopp: pil opp, w, space
+    //Dukk: pil ned, s
+    //Avslutt spill: ESC
+    document.onkeydown = function (evt) {
+        var tastekode = evt.keyCode;
+        if (tastekode === 32 && !joeHopper || tastekode === 38 && !joeHopper || tastekode === 87 && !joeHopper) {
+            joeHopper = true;
+            sndHopp.play();
+        }
+        if (tastekode === 40 || tastekode === 83) {
+            joeDukker = true;
+        }
+        if (tastekode === 27) {
+            banePos = 0;
+            joeAvslutter = true;
+        }
+    }
+    document.onkeyup = function (evt) {
+        var tastekode = evt.keyCode;
+        if (tastekode === 40 || tastekode === 83) {
+            joeDukker = false;
+        }
+    }
+    function joeBevegelse() {
+        joe.style.backgroundImage = "url(img/joe.png)";
+        joe.style.bottom = "40px";
+        if (joeHopper) {
+            fallFart -= gravitasjon;
+            joeyPos += fallFart;
+            joe.style.bottom = joeyPos + "px";
+            joe.style.backgroundImage = "url(img/joe_hopp.png)";
+        }
+        if (joeHopper && joeDukker) {
+            fallFart -= gravitasjon*2;
+            joe.style.backgroundImage = "url(img/joe_dukk.png)";
+        }
+        if (joeyPos <= bakkePos) {
+            joeHopper = false;
+        }
+        if (!joeHopper) {
+            fallFart = 9;
+            gravitasjon = 0.4;
+            joeyPos = 40;
+            joe.style.bottom = joeyPos + "px";
+        }
+        if (joeDukker) {
+            joeHoyde = 36;
+            joe.style.height = joeHoyde + "px";
+            joe.style.backgroundImage = "url(img/joe_dukk.png)";
+        }
+        if (!joeDukker) {
+            joeHoyde = 60;
+            gravitajson = 0.4;
+            joe.style.height = joeHoyde + "px";
+        }
+        if(joeAvslutter) {
+            joexPos = joexPos + baneFart;
+            joe.style.left = joexPos + "px";
+        }
+    }
+
+    function bevegBane() {
+        if(!joeAvslutter){
+            banePos -= baneFart;
+            gressBane.style.backgroundPosition = banePos + "px";
+            orkenBane.style.backgroundPosition = banePos + "px";
+        }
+    }
+
+    function bevegBakgrunn() {
+        fjellBakPos -= fjellBakFart;
+        fjellBak.style.backgroundPosition = fjellBakPos + "px";
+
+        fjellForanPos -= fjellForanFart;
+        fjellForan.style.backgroundPosition = fjellForanPos + "px";
+
+        skyerPos -= skyerFart;
+        skyer.style.backgroundPosition = skyerPos + "px";
+    }
+
+    function tilfeldigeHindere() {
+        hinder[0].xpos = baneBredde + Math.random()*baneBredde;
+        hinder[1].xpos = hinder[0].xpos + Math.random()*baneBredde + 200;
+        hinder[2].xpos = hinder[1].xpos + Math.random()*baneBredde + 200;
+        hinder[3].xpos = hinder[2].xpos + Math.random()*baneBredde + 200;
+    }
+
+    function bevegHindere() {
+        var storste_xpos;
+        for(var i=0; i<hinder.length; i+=1) {
+            hinder[i].xpos -= baneFart;
+            hdnHinder[i].style.left = hinder[i].xpos + "px";       
+            if (hinder[i].xpos < 0 - hinder[i].bredde) {
+                storste_xpos = 0;
+                for(var j=0; j<hinder.length; j+=1) {
+                    if (hinder[j].xpos > storste_xpos){ 
+                        storste_xpos = hinder[j].xpos;
+                    }
+                }
+                hinder[i].xpos = storste_xpos + Math.random()*200 + 200;
+            }
+            if(joeAvslutter){
+                    hinder[i].xpos += baneFart;
+            }
+        }
+    }
+
+    function joeTrefferHinder() {
+        for(var i=0; i<hinder.length; i+=1) {
+            var joeTilHoyre = joexPos + joeBredde >= hinder[i].xpos;
+            var joeTilVenstre = joexPos <= hinder[i].xpos + hinder[i].bredde;
+            var joeUnder = joeyPos <= hinder[i].ypos + hinder[i].hoyde;
+            var joeOver = joeyPos + joeHoyde >= hinder[i].ypos;
+            var joeESC = joexPos >= baneBredde;
+            if (joeTilHoyre && joeTilVenstre && joeUnder && joeOver || joeESC){
+                gameover.style.display = "block";
+                gameoverPoeng.innerHTML = "You got " + poeng + " points<br><br>Highscore: " + localStorage.rekord + " points";
+                sndSoundtrack.pause();
+                sndGameover.play();
+                joe.style.height = "60px";
+                joe.style.backgroundImage = "url(img/joe_dead.png)";
+                joeAvslutter = false;
+                gameOn = false;
+            }
+        }
+    }
+
+    function score() {
+        poeng += 1;
+        satKurve = Math.sin(0.75*sat)*600+700;
+        spill.style.filter = "saturate( 100%) hue-rotate(" + hue + "deg)";
+
+        //Rekord effekter:
+        hdnPoeng.innerHTML = poeng;
+        if (poeng == localStorage.rekord) {
+                sndHighscore.play();
+        }
+        if (poeng > localStorage.rekord) {
+            localStorage.rekord = poeng;
+            hdnRekord.innerHTML = "HI " + poeng;
+            gameoverPoeng.innerHTML = "NEW HIGHSCORE: " + poeng + " points";
+            sat += 1;
+            spill.style.filter = "saturate(" + satKurve + "%) hue-rotate(" + hue + "deg)";
+            if (sat >= 280) {
+                spill.style.filter = "saturate(100%) hue-rotate(" + hue + "deg)";
+            }
+        }
+        
+        //Økende fart og soundtrack:
+        if(poeng > 1000) {
+            baneFart = 5;
+            sndSoundtrack.playbackRate = 5/4;
+            sndHopp.playbackRate = 5/4;
+            innstillingerJoe.duration = 750/(5/4);
+        }
+        if(poeng > 2000) {
+            baneFart = 6;
+            sndSoundtrack.playbackRate = 6/4;
+            sndHopp.playbackRate = 6/4;
+            innstillingerJoe.duration = 750/(6/4);
+        }
+        if(poeng > 5000) {
+            baneFart = 7;
+            sndSoundtrack.playbackRate = 7/4;
+            sndHopp.playbackRate = 7/4;
+            innstillingerJoe.duration = 750/(7/4)
+        }
+
+        //Effekter:
+     //   if (poeng > 2000){
+       //     opacity1 -= 1;
+         //   bane.style.filter = "opacity(" + opacity1 + "%)";
+          //  if(poeng > 2100){ 
+           //     bane.style.backgroundImage = "url(img/bane_orken.png)"
+           //     opacity1 +=2;
+          //      bane.style.filter = "opacity(" + opacity1 + "%)";
+           // }
+      //  }
+
+        //2000p: Ørkenbane
+        if (poeng < 2000) {
+                gressBane.style.opacity = "1";
+                orkenBane.style.opacity = "0";
+        }
+        if (poeng > 2000) {
+            gressOp -= 0.003;
+            orkenOp += 0.003;
+            gressBane.style.opacity = gressOp;
+            orkenBane.style.opacity = orkenOp;
+        }
+        if (poeng > 2000){
+            fjellHue += 0.2;
+            fjellBak.style.filter = "hue-rotate(" + fjellHue + "deg)";
+            fjellForan.style.filter = "hue-rotate(" + fjellHue + "deg)";
+            if (fjellHue > 100){
+                fjellHue = 100;
+            }
+        }
+
+        //3000p: crazy hue
+        if (poeng > 3000) {
+            hue += 3;
+            if (poeng > 3500) {  
+                hue = 0;
+            }
+        }
+
+        //5000p: natt / motsatt farger
+        if (poeng > 5000) {
+            body.style.filter = "invert(100%)";  
+            body.style.backgroundColor = "#110F09";
+            if (poeng > 6000) {
+                body.style.filter = "invert(0%)";  
+                body.style.backgroundColor = "initial";
+            }
+        }
+    }
+    resetScore.onclick = function(){
+        localStorage.rekord = 0;
+    }
+
+    lydknapp.onclick = function(){
+        volumValg += 1;
+        if(volumValg > 3){
+            volumValg = 0;
+        }
+        lydknapp.style.backgroundImage = "url(" + volumBilde[volumValg] + ")";
+        sndSoundtrack.volume    = volum[volumValg];
+        sndHopp.volume          = volum[volumValg];
+        sndHighscore.volume     = volum[volumValg];
+        sndGameover.volume      = volum[volumValg];
+    }
+
+    function gameLoop() {
+        joeBevegelse();
+        bevegBane();
+        bevegHindere();
+        bevegBakgrunn();
+        joeTrefferHinder();
+        score();
+        if (gameOn) {
+            requestAnimationFrame(gameLoop);
+        }
+    }
+    tilfeldigeHindere();
+    gameLoop();
+</script>
+</body>
+
+</html>

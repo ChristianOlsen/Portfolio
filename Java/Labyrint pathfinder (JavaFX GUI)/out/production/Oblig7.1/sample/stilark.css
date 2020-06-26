@@ -1,0 +1,7 @@
+#borderPane {
+    -fx-background-color: lightgrey;
+}
+
+#rute {
+    -fx-border-radius: 5px;
+}

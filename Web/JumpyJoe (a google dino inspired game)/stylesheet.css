@@ -1,0 +1,223 @@
+body{
+    background-color: #eef0f6;
+    font-family: 'Press Start 2P', cursive;
+    color: #292929;
+    transition: 1s;
+}
+.pixelated{
+    image-rendering: auto;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+    background-size: auto 100%;
+}
+#spillramme{
+    position: absolute;
+    margin: auto;
+    top: 0; bottom: 0; left: 0; right: 0;
+    width: fit-content;
+    height: fit-content;
+}
+#spill{
+    position: relative;
+    background-color: inherit;
+    width: 700px;
+    height: 200px;
+    overflow: hidden; 
+}
+#tittel{
+    font-size: 40px;
+    font-weight: 800px;
+    text-align: center;
+    letter-spacing: 3px;
+    margin: 0;
+    margin-bottom: 20px;
+}
+#tittel:hover{
+    cursor: pointer;
+    -webkit-text-stroke: 2px;
+}
+#start, #gameover{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    color: #eef0f6;
+    text-align: center;
+    z-index: 10;
+}
+#start{
+    background-color: rgba(50, 50, 50, 0.5);
+    display: block;
+}
+#gameover{
+    background-color: rgba(150, 0, 0, 0.5);
+    display: none;
+}
+#scoreBoard{
+    position: absolute;
+    right: 40px;
+    z-index: 10;
+    font-size: 15px;
+    width: fit-content;
+}
+#hdnPoeng, #hdnRekord{
+    margin-right: 20px;
+    float: left;
+    margin-top: 8px;        
+}
+#lydknapp{
+    background-image: url(img/lyd3.png);
+    float: left;
+    width: 22px;
+    height: 20px;
+    margin-left: 10px;
+    margin-top: 6px;
+}
+#lydknapp:hover{
+    opacity: 0.5;
+}
+#resetScore{
+    float: left;
+    font-family: inherit;
+    background-color: inherit;
+    color: inherit;
+    font-size: 12px;
+    margin-top: 10px;
+    margin-left: 15px;
+    border: none;
+}
+#resetScore:hover{
+    background-color: rgb(150, 0, 0);
+    cursor: pointer;
+}
+.copyright{
+    float: right;
+    font-size: 12px;
+    margin-top: 10px;
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+}
+.copyright .contact{
+    position: absolute;
+    z-index: 1;
+    width: auto;
+    background-color: none;
+    top: 100%;
+    right:0;
+    padding-top: 10px;
+    visibility: hidden;
+    text-align: center;
+    font-size: 10px;
+    cursor: pointer;
+}
+.copyright:hover .contact{
+    visibility: visible;
+}
+.baneBevegelse{
+    position: absolute;
+    background-color: inherit;
+    background-size: auto 100%;
+    background-repeat: repeat-x;
+}
+#fjellBak{
+    background-image: url(img/fjell_bak.png);
+    top: 0px;
+    width: 700px;
+    height: 160px;
+    z-index: -4;
+}
+#fjellForan{
+    background-image: url(img/fjell_foran.png);
+    top: 0px;
+    width: 700px;
+    height: 160px;
+    z-index: -3;
+}
+#skyer{
+    background-image: url(img/skyer.png);
+    top: 0px;
+    width: 700px;
+    height: 200px;
+    z-index: 5;
+}
+#joe{
+    position: absolute;
+    background-image: url(img/joe.png);
+    background-size: auto 100%;
+    width: 45px;
+    height: 60px;
+    left: 60px;
+    bottom: 40px;
+    z-index: 3;
+}
+#gradient{
+    background-image: url(img/gradient.png);
+    position: absolute;
+    width: 700px;
+    height: 200px;
+    z-index: 10;
+}
+.bane{
+    position: absolute;
+    background-size: auto 100%;
+    background-repeat: repeat-x;
+    width: 700px;
+    height: 50px;
+    bottom: 0px;
+    z-index: 0;
+}
+#gressBane{
+    background-image: url(img/bane_gress.png);
+    opacity: 1;
+}
+#orkenBane{
+    background-image: url(img/bane_orken.png);
+    opacity: 0;
+}
+#tunellForan, #tunellBak{
+    position: absolute;
+    right: 0px;
+    bottom: 25px;
+    height: 100px;
+    width: 120px;
+    background-size: 100% 100%;
+}
+#tunellForan{
+    background-image: url(img/tunell_foran.png);
+    z-index: 4;
+}
+#tunellBak{
+    background-image: url(img/tunell_bak.png);
+    z-index: 1;
+}
+.hinder{
+    position: absolute;
+    background-size: auto 100%;
+    right: 0px;
+    bottom: 40px;
+    display: block;
+    z-index: 1;
+}
+#hdnHinder1{
+    background-image: url(img/hinder1.png);
+    width: 45px;
+    height: 25px;
+}
+#hdnHinder2{
+    background-image: url(img/hinder2.png);
+    bottom: 15px;
+    width: 60px;
+    height: 35px;
+    z-index: 0;
+}
+#hdnHinder3{
+    background-image: url(img/hinder3.png);
+    width: 30px;
+    height: 55px;
+}
+#hdnHinder4{
+    background-image: url(img/hinder4.png);
+    bottom: 80px;
+    width: 55px;
+    height: 30px;
+}
